@@ -1,0 +1,122 @@
+\documentclass{article}
+
+\title{Augmenting the Borda Count to Instant Runoff}
+\date{12/4/2016}
+\author{Evan Liang}
+
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{amsthm}
+\usepackage{graphicx}
+\usepackage{float}
+
+\newtheorem{res}{Result}
+\newtheorem{lem}[res]{Lemma}
+
+
+
+\begin{document}
+	\maketitle
+\begin{abstract}
+	Through mathematical reasoning and computer simulations, the author found that adding the a variation of instant runoff voting that uses the Borda Count to eliminate candidates reduces the system's likelihood of violating monotonicity and maintains the majority criterion.
+\end{abstract}
+\section{Introduction}
+
+Growing up, the only voting method I was familiar with was plurality – the candidate with the most votes wins. I always thought plurality was very logical, convenient, and fair, until I took a course in Mathematics of voting. Not only did we learn that plurality has drawbacks such as vulnerability to spoiler candidates and that a candidate whom a large majority of voters despise could win, but we were also introduced to a fruitful variety of other voting systems and ways to evaluate them. A few such systems are the Borda count, sequential pairwise voting, instant runoff. Right away, we noticed that a major difference between these methods and plurality is that they solicit more information from a voter by asking for a preference ranking of the candidates instead of single candidate. Personally, preference ranking is an appealing aspect because it allows voters to support other candidates that they like, and it accounts for a deeper level of information. \\
+
+
+These new voting systems, however, succumb to flaws as we soon learned. We want voting systems to satisfy certain desirable properties so that they are mathematically robust. Some standard properties include treating voters(anonymity) and candidates(neutrality) equally. Another reasonable property is monotonicity, which states that changes favorable to a candidate should not decrease that candidate’s performance in the election. As it turns out, because of impossibility theorems such as Arrow’s theorem, there does not exist a perfect voting system that satisfies many desirable properties at once. For example, Borda count does not satisfy the Majority Criterion – a candidate who receives more than half the first-place votes must win; sequential pairwise voting does not satisfy neutrality; instant runoff violates monotonicity. Interestingly, plurality satisfies all the criteria mentioned so far, which proves that some complex voting systems are devised at the expense of intuitive properties that we want voting systems to exhibit. \\ 
+
+	
+The voting systems of interest in this research paper are Borda count and instant runoff voting – IRV for short. The first step in both systems is to have voters in the elction submit his or her entire preference order of the candidates. The systems and results differ in how these individual preference orders are processed.
+
+Borda count operates under the following rules(\cite{Textbook}, pg.25):\\
+
+\textit{For each ballot cast, points are awarded to each candidate as follows: first-place gets $n-1$ points, second-place gets $n-2$ points, ..., $i$th-place gets $n-i$ points. The candidate who accumulates most points from all of the ballot wins. The resulting societal preference order is determined by the number of points each candidate receives from largest to smallest.}\\
+
+IRV operates under the following rules (\cite{Textbook}, pg.49):\\
+
+\textit{In each round, the candidate with the least number of first-place votes is eliminated from each voter’s preference order, and the remaining candidates are moved up on each preference order, yielding a new collection of preferences for the election. Carry the rounds until only a single candidate remains. A societal preference order is constructed by the order in which the candidates are eliminated.}\\
+
+IRV has gained traction in many voting reforms around the United States lately, with proponents claiming that the system gives voters more representation and power to affect elections. Although IRV has many attractive characteristics, opponents of the system highlight one of its perverse behaviors – violation of monotonicity. In other words, it is possible to lower your favorite candidate’s chances of winning by ranking them higher on your preference ballot. To many people, such occurrences could signify that the system is unstable and cannot be trusted. Supporters of IRV, while aware of the flaws, argue that violation of monotonicity is negligible because the probability that it happens is small; some even embrace the unstable nature as a deterrent for strategic voting. 
+
+\section{Borda Instant Runoff}
+
+The goal of this research project is not to compute the true frequency of the violation of monotonicity, a topic that has been heavily researched\cite{Research2}. Rather, we will investigate a variation of the IRV and how it stands up to IRV. We will call this new system \textbf{Borda runoff voting} (\textbf{BRV} for short), which only differs from IRV in the second step:
+\begin{enumerate}
+	\setcounter{enumi}{1}
+	\item  In each round, the Borda count is implemented, from which the last place candidate is eliminated from each voter’s preference order, and the remaining candidates are moved up on each preference order, yielding a new collection of preferences for the election.
+\end{enumerate}
+Instead of eliminating candidates based on plurality (the case for IRV), Borda runoff does so based on the Borda count. Immediately, we can see that BRV, like IRV, satisfies anonymity and neutrality. 
+
+\subsection{Majority Criterion}
+In IRV, if a candidate receives a majority of first place votes, he or she would maintain that status for the subsequent rounds of runoff and eventually win. In BRV, however, things are not so trivial. Since the Borda count violates the majority criterion (MC for short), it is tempting to conclude that BRV also violates the MC. However, as the following Lemma about the Borda count will make clear, BRV actually satisfies the MC!
+
+\begin{lem}
+	If a candidate receives the majority of first place votes in an election, then that candidate cannot be last place under Borda count.
+\end{lem}
+
+\begin{proof}
+	Let this be an election with $n$ candidates and $m$ voters. Let $A$ denote this special candidate with the majority of first place votes. By the definition of Borda count, first place receives $n-1$ points, so $A$ receives more than $(n-1)\cdot \frac {m}{2}$. \\
+	
+	Suppose for the sake of contradiction that $A$ does end up in last place under Borda count. This means the score of any other candidate is greater than  $(n-1)\frac {m}{2}$. Thus, the total score over every candidate is greater than $n\cdot [(n-1)\frac {m}{2}] = \frac {n(n-1)m}{2}$. \\
+	
+	However, we know there are $m$ ballots and the total score on each ballot is $\frac {n(n-1)}{2}$. Thus the total score on every voter’s ballot is exactly $m\cdot \frac {n(n-1)}{2}=\frac {n(n-1)m}{2}$, which contradicts what we found above because the total score cannot be both equal and greater than the same value. 
+\end{proof}
+
+\begin{res}
+BRV satisfies the majority criterion
+\end{res}
+
+\begin{proof}
+	Suppose an election has a candidate $A$ with the majority of first place votes. By the Lemma, $A$ does not lose the first round under BRV. Since $A$ remains the “majority” candidate every round of the runoff, the Lemma asserts that $A$ never loses and eventually wins. In conclusion $A$ is the winner under BRV.
+\end{proof}
+
+\subsection{Monotonicity}
+
+We now examine monotonicity. At first glance, it is difficult to determine if BRV satisfies the condition, or if BRV has a lower chance of violating monotonicity than IRV. Judging from previous works, monotonicity appears hard to analyze mathematically. For an election with three candidates, researchers had found a complete characterization for ballot collections that are not monotone \cite{Research1}, from which an exact probability for violating monotonicity can be calculated. It is difficult to derive succinct characterizations for four or more candidates, simply because the number of possible ballots to consider grow at rates of factorials – there are $n!$ ways to rank $n$ candidates. Similarly, monotonicity for BRV is even harder to analyze than for IRV since Borda count – BRV’s method to eliminate candidates – is more complex than plurality – IRV’s method to eliminate candidates. In order to bypass these analytical hurdles, I built a computer simulation to model elections. I have decided to use the following two metrics to measure monotonicity:
+
+\begin{enumerate}
+	\item \textbf{Winner Vulnerability}: an election is vulnerable if increasing the winner’s ranking on some individual preference orders results in a new winner.
+	\item \textbf{General Vulnerability}: an election is vulnerable if we can find a candidate whose ranking on the societal preference order is lowered when his/her rank is increased on some individual preference orders.
+	
+\end{enumerate}
+
+For each vulnerability, we tested elections with 3 and 4 candidates. Computational toll would take on beyond 6 candidates. The elections were modeled by randomly generating ballots for a fixed number of voters, which were 50,200, and 500 for this simulation. Elections that result in a tie were ignored. For each election generated, written test functions for both systems were run and returned whether the collection of ballots was immune to the vulnerability of interest. The grouped bar charts below record the number of elections that passed the test.
+
+
+\begin{figure}[H]
+	
+	\includegraphics[width=\linewidth]{3.PNG}
+	\caption{Comparison results for 3 candidates}
+	\label{fig1}
+	
+\end{figure}
+
+\begin{figure}[H]
+	
+\includegraphics[width=\textwidth]{4.PNG}
+\caption{Comparison results for 4 candidates}
+\label{fig2}
+
+\end{figure}
+
+Notice that BRV performs better than IRV in every test. Therefore, \textbf{we have statistical confidence that BRV is less likely to violate monotonicity than IRV.} A natural question to ask given these results is, if an election passes the vulnerability test for IRV, does the same election pass the test for BRV? As it turns out, the answer is no; IRV and BRV are not conditionally related in any way. Statistically, however, it seems that such instances are rare. I worte a program to find a counter example with 3 candidates and 100 voters, and it took randomly generated 2893 elections to find one. 
+
+\section{Conclusion}
+
+After examining the Borda instant runoff system, I found that adding Borda count to instant runoff mitigates the occurrences of violating monotonicity and maintains the majority criterion. While this new system appears to be more mathematically robust than instant runoff, it is not a simple process to explain to the public. Although IRV is already implemented in several locations around the US, part of difficulty in getting people to accept a certain voting system is convincing them that the system is simple and intuitive. With this in mind, if we want BRV to be implemented in society, we would inevitably face many oppositions and obstacles.
+
+\newpage
+
+\begin{thebibliography}{9}
+\bibitem{Textbook}
+Jonathan K. Hodge and Richard E.Klima. \textit{The Mathematics of Voting and Elections: A Hands-on Approach}. The Mathematical World, Volume 22, 2005
+
+\bibitem{Research1}
+Nicholas R. Miller. \textit{Monotonicity Failure in IRV Elections With Three Candidates: Closeness Matters}. University of Marland Baltimore County, 2016
+
+\bibitem{Research2}
+Dominique Lepelley, Frederic Chantreuil, and Sven Berg. \textit{The likelihood of monotonicity paradoxes in run-off elections}. Mathematical Social Sciences, 31, 1996
+\end{thebibliography}
+\end{document}
